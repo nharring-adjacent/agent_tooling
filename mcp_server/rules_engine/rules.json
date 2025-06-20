@@ -1,0 +1,32 @@
+{
+  "10-K": {
+    "source_api": "SEC-EDGAR",
+    "issuance_interval": "Annual",
+    "amendment_process": "10-K/A for full amendment",
+    "relevant_entity_types": ["US Public Company"]
+  },
+  "10-Q": {
+    "source_api": "SEC-EDGAR",
+    "issuance_interval": "Quarterly",
+    "amendment_process": "10-Q/A for full amendment",
+    "relevant_entity_types": ["US Public Company"]
+  },
+  "8-K": {
+    "source_api": "SEC-EDGAR",
+    "issuance_interval": "Irregular",
+    "amendment_process": "8-K item update; amended 8-K/A",
+    "relevant_entity_types": ["US Public Company"]
+  },
+  "S-1": {
+    "source_api": "SEC-EDGAR",
+    "issuance_interval": "Irregular",
+    "amendment_process": "S-1/A for amendment",
+    "relevant_entity_types": ["US Public Company", "Pre-IPO Company"]
+  },
+  "DEF 14A": {
+    "source_api": "SEC-EDGAR",
+    "issuance_interval": "Annual",
+    "amendment_process": "DEFA14A or DEFM14A for amendment",
+    "relevant_entity_types": ["US Public Company"]
+  }
+}
