@@ -1,0 +1,14 @@
+{
+  "name": "doxygen_embedding_tool",
+  "description": "Generate vector embeddings from Doxygen documentation and save them to Parquet",
+  "inputs": [
+    {"name": "repo_path", "type": "string", "description": "Path to the repository"},
+    {"name": "output_file", "type": "string", "description": "Destination Parquet file"},
+    {"name": "base_url", "type": "string", "description": "Embedding service URL"},
+    {"name": "api_key", "type": "string", "description": "Optional API key", "required": false},
+    {"name": "max_chunk_tokens", "type": "integer", "description": "Maximum tokens per chunk", "default": 8191}
+  ],
+  "outputs": [
+    {"name": "output_file", "type": "string", "description": "Path to the generated Parquet file"}
+  ]
+}
