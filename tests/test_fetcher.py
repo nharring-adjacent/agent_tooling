@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock, mock_open
+# from flask import current_app # Removed as no longer directly used in test functions
 from mcp_server.fetcher import tasks
 from mcp_server.api.routes import _filing_requests # To inject test data
 import os # For path manipulation
@@ -122,12 +123,13 @@ def test_simulate_sec_edgar_fetch_creates_files(mock_sleep, mock_file_open, app)
     # Test amendment simulation
     rules_amend = {"amendment_process": "Can be amended", "relevant_entity_types": ["Test"]}
     # Patching uuid.uuid4 specifically where it's used in the tasks module.
+    # Setting this call to use uuid.UUID(int=0) as per original subtask, consistent with the third call.
     with patch('mcp_server.fetcher.tasks.uuid.uuid4') as mock_uuid_call:
-        mock_uuid_instance = MagicMock()
-        mock_uuid_instance.int = 0 # Standard way to force the modulo condition
-        mock_uuid_call.return_value = mock_uuid_instance
+        fixed_uuid = uuid.UUID(int=0) # Standard way to force the modulo condition
+        mock_uuid_call.return_value = fixed_uuid
 
         with app.app_context():
+             # current_app.logger.info(f"[TEST_LOG] Rules being passed to second call: {rules_amend}") # Removed
              results_amended = tasks.simulate_sec_edgar_fetch(form_type, date_range_str, company_id, rules_amend)
 
     assert len(results_amended) == 1
@@ -138,9 +140,8 @@ def test_simulate_sec_edgar_fetch_creates_files(mock_sleep, mock_file_open, app)
     # Reset mock_file_open to specifically check calls for the amendment part
     mock_file_open.reset_mock()
     with patch('mcp_server.fetcher.tasks.uuid.uuid4') as mock_uuid_call_again: # Use a new mock name for clarity
-        mock_uuid_instance_again = MagicMock()
-        mock_uuid_instance_again.int = 0 # Standard way
-        mock_uuid_call_again.return_value = mock_uuid_instance_again
+        fixed_uuid = uuid.UUID(int=0) # Standard way, ensuring consistency
+        mock_uuid_call_again.return_value = fixed_uuid
 
         with app.app_context():
             # This call should result in an amendment and thus 2 file writes
