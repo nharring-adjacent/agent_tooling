@@ -11,9 +11,3 @@ class CombyError(McpServerError):
     """Exception raised for errors during Comby operations."""
 
     pass
-
-
-class CombyError(McpServerException):
-    """Exception raised for errors during Comby operations."""
-
-    pass
