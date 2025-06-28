@@ -88,29 +88,45 @@ Used for analyzing code without modification to find matching patterns.
 └───────────────┘     └──────────────────┘     └───────────────┘     └──────────────┘
 ```
 
-## Security Model
+"""## Security and Robustness Model
 
-- **Container-Based Isolation**: The application runs in a Docker container with a `/workspace` volume mount
-- **Input Validation**: All user inputs are validated and sanitized before processing
-- **Path Constraints**: Operations are restricted to the mounted `/workspace` directory
-- **Error Handling**: Detailed errors are logged but sanitized before returning to clients
-- **Version Control Safety**: Relies on Git as the primary safety mechanism for code modifications
+Security and robustness are foundational to the architecture, ensuring that all automated operations are safe, reliable, and do not introduce new vulnerabilities.
 
-## Future Extensions
+- **Container-Based Isolation**: The application runs in a Docker container with a `/workspace` volume mount to prevent access to the host filesystem.
+- **Input Validation**: All user inputs are strictly validated and sanitized before processing to prevent injection or command manipulation.
+- **Path Constraints**: Operations are restricted to the mounted `/workspace` directory.
+- **Error Handling**: Detailed errors are logged for debugging but are sanitized before being returned to clients to avoid leaking internal state.
+- **Version Control Safety**: The system relies on Git as the primary safety mechanism for code modifications, ensuring changes can be reviewed and reverted.
+- **Fuzzing and Verification**: Future versions will integrate fuzzing as a mandatory verification step in the code generation and modification pipeline. This ensures that any AI-generated change is not only syntactically correct and performant but also robust against unexpected or malicious inputs.
 
-The architecture is designed to be extensible, with planned integration of additional static and dynamic analysis tools:
+## Future Extensions: The Path to Autonomous Development
 
-### Static Analysis
+The architecture is designed to be extensible, with a clear roadmap from advanced analysis to autonomous code generation and optimization.
 
-- **Tree-sitter**: For syntax-aware code navigation and manipulation
-- **Semgrep**: For semantic pattern matching across codebases
+### V1: Advanced Static Analysis
 
-### Dynamic Analysis
+The initial extensions focus on deepening the system's understanding of code.
 
-- **Causal Profiling (coz)**: For identifying performance optimization opportunities
-- **Memory Profiling (DHAT)**: For analyzing memory usage patterns and inefficiencies
+- **Tree-sitter**: For fine-grained, syntax-aware code navigation and manipulation.
+- **Semgrep**: For semantic pattern matching that understands code logic beyond simple text patterns.
+
+### V2: The Generative Leap
+
+This phase moves from analyzing code to generating it with guaranteed correctness.
+
+- **Fine-Tuned Generative Model**: A core goal is to develop a fine-tuned LLM that outputs a compact, structured Abstract Syntax Tree (AST) instead of raw text. This eliminates syntax, formatting, and indentation errors by design.
+- **Deterministic "Pretty-Printer"**: A decoder will translate the model's AST output into perfectly formatted, human-readable code that adheres to project-specific style guides.
+
+### V3: The Optimization & Autonomy Engine
+
+This phase creates a closed-loop system for continuous code improvement.
+
+- **Performance Optimization Workflow**: Agents will be able to hypothesize a performance improvement, use the V2 engine to generate a patch, and then use an integrated **Performance Measurement Service** to compile and benchmark the change. This provides a direct feedback loop to learn what changes yield real performance gains.
+- **Autonomous Fuzzing and Security Hardening**: The system will use **fuzzing** not just for verification but for proactive vulnerability discovery. When a flaw is found, the V3 engine will be able to autonomously generate, test, and verify a patch before submitting it for human approval.
+- **Proactive Code Health Monitoring**: Deployed as a service, the system will continuously scan for code smells, potential regressions, and complex security vulnerabilities using deep analysis tools like Code Property Graphs (CPGs), creating a "self-healing" codebase.
 
 ## Technical Constraints
+"""
 
 - **Stateless Operation**: No persistent storage between requests
 - **Local Execution**: Designed to run on developer machines
