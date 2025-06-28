@@ -2,22 +2,23 @@ from __future__ import annotations
 
 import subprocess
 import tempfile
+import xml.etree.ElementTree as Et
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-import xml.etree.ElementTree as ET
+from typing import Any
 
 import polars as pl
 import requests
+
 from crewai_tools import tool
 
 
-def _get_text(element: Optional[ET.Element]) -> str:
+def _get_text(element: Et.Element | None) -> str:
     if element is None:
         return ""
     return " ".join(part.strip() for part in element.itertext()).strip()
 
 
-def _chunk_text(text: str, max_tokens: int) -> List[str]:
+def _chunk_text(text: str, max_tokens: int) -> list[str]:
     """Split *text* into overlapping chunks using token counts.
 
     This function uses ``tiktoken`` to ensure that each chunk contains at most
@@ -42,7 +43,7 @@ def _chunk_text(text: str, max_tokens: int) -> List[str]:
     return chunks
 
 
-def _embed(text: str, base_url: str, api_key: Optional[str]) -> List[float]:
+def _embed(text: str, base_url: str, api_key: str | None) -> list[float]:
     headers = {"Content-Type": "application/json"}
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
@@ -55,9 +56,7 @@ def _embed(text: str, base_url: str, api_key: Optional[str]) -> List[float]:
     return embedding
 
 
-def _parse_member(
-    member: ET.Element, class_name: str, max_tokens: int
-) -> List[Dict[str, Any]]:
+def _parse_member(member: Et.Element, class_name: str, max_tokens: int) -> list[dict[str, Any]]:
     rows = []
     member_name = _get_text(member.find("name")) or None
     kind = member.get("kind", "member")
@@ -79,7 +78,7 @@ def _parse_member(
     return rows
 
 
-def _parse_compound(compound: ET.Element, max_tokens: int) -> List[Dict[str, Any]]:
+def _parse_compound(compound: Et.Element, max_tokens: int) -> list[dict[str, Any]]:
     rows = []
     class_name = _get_text(compound.find("compoundname"))
     brief = _get_text(compound.find("briefdescription"))
@@ -106,10 +105,10 @@ def _parse_compound(compound: ET.Element, max_tokens: int) -> List[Dict[str, Any
     return rows
 
 
-def _parse_xml(xml_dir: Path, max_tokens: int) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
+def _parse_xml(xml_dir: Path, max_tokens: int) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
     for path in xml_dir.glob("*.xml"):
-        tree = ET.parse(path)
+        tree = Et.parse(path)
         root = tree.getroot()
         for compound in root.findall("compounddef"):
             kind = compound.get("kind")
@@ -147,9 +146,7 @@ def doxygen_embedding_tool(
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         doxyfile = f"OUTPUT_DIRECTORY={tmpdir}\nGENERATE_XML=YES\nRECURSIVE=YES\nINPUT={repo_path}"
-        subprocess.run(
-            ["doxygen", "-"], input=doxyfile.encode(), cwd=repo_path, check=True
-        )
+        subprocess.run(["doxygen", "-"], input=doxyfile.encode(), cwd=repo_path, check=True)
         xml_dir = Path(tmpdir) / "xml"
         rows = _parse_xml(xml_dir, max_chunk_tokens)
     for row in rows:
